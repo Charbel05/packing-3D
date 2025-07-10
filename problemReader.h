@@ -22,7 +22,7 @@ public:
 	virtual ~problemReader();
 
 	//methods
-	void add_item(int w, int h, int l);
+	void add_item(int w, int h, int l, int nItems);
 };
 
 

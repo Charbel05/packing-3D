@@ -23,5 +23,17 @@ public:
 		vector <int>& x, vector <int>& y, vector <int>& z);
 };
 
+class packing2D {
+public:
+	packing2D();
+	virtual ~packing2D();
+
+	static int auxiliary_packing2D_solve(
+		vector <int>& indice_items,
+		int D1, int D2,
+		vector <int>& dim_itens1, vector <int>& dim_itens2,
+		vector <int>& dim_solver1, vector <int>& dim_solver2);
+};
+
 #endif /* PACKING_H_ */
 

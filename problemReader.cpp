@@ -11,21 +11,25 @@ problemReader::problemReader(char* file_name) {
 		exit(-1);
 	}
 
-	file >> this->nItems >> this->W >> this->H >> this->L;
+	int nProblem = 0, seed = 0, typeItens = 0, nItems = 0;
+	file >> nProblem >> seed >> this->W >> this->H >> this->L >> typeItens;
 
-	// Preenche vetores de dimensões dos itens
-	for (int i = 0; i < this->nItems; i++)
+	for (int i = 0; i < typeItens; i++)
 	{
+		int ti, vertical_permission;
 		int wi, hi, li;
-		file >> wi >> hi >> li;
-		this->add_item(wi, hi, li);
+		file >> ti >> wi >> vertical_permission >> hi >> vertical_permission >> li >> vertical_permission >> nItems;
+		this->nItems += nItems;
+		this->add_item(wi, hi, li, nItems);
 	}
 }
 
-void problemReader::add_item(int w_, int h_, int l_) {
-	this->w.push_back(w_);
-	this->h.push_back(h_);
-	this->l.push_back(l_);
+void problemReader::add_item(int w_, int h_, int l_, int nItems) {
+	for (int i = 0; i < nItems; i++){
+		this->w.push_back(w_);
+		this->h.push_back(h_);
+		this->l.push_back(l_);
+	}
 }
 
 problemReader::~problemReader() {
