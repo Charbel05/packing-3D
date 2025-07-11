@@ -31,7 +31,7 @@ int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector 
 		}
 
 
-		//RestriÁ„o de n„o sobreposiÁ„o
+		//Restri√ß√£o de n√£o sobreposi√ß√£o
 		for (IloInt i = 0; i < nItems; i++) {
 			for (IloInt j = i + 1; j < nItems; j++) {
 				mdl.add(X[i] + w[i] <= X[j] || X[j] + w[j] <= X[i] ||
@@ -88,13 +88,13 @@ int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int
 			Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
 		}
 
-		//RestriÁ„o de n„o sobreposiÁ„o
+		//Restri√ß√£o de n√£o sobreposi√ß√£o
 		for (IloInt i = 0; i < indice_itens.size(); i++) {
-			int item_1 = indice_itens[i];
+			int item_i = indice_itens[i];
 			for (IloInt j = i + 1; j < indice_itens.size(); j++) {
-				int item_2 = indice_itens[j];
-				mdl.add(X[i] + dim_itens1[item_1] <= X[j] || X[j] + dim_itens1[item_1] <= X[i] ||
-					Y[i] + dim_itens2[item_2] <= Y[j] || Y[j] + dim_itens2[item_2] <= Y[i]
+				int item_j = indice_itens[j];
+				mdl.add(X[i] + dim_itens1[item_i] <= X[j] || X[j] + dim_itens1[item_j] <= X[i] ||
+					Y[i] + dim_itens2[item_i] <= Y[j] || Y[j] + dim_itens2[item_j] <= Y[i]
 				);
 			}
 		}
@@ -151,7 +151,7 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 	}
 	cout << "iniciando os testes..." << endl;
 
-	// PrÈ-processamento
+	// Pr√©-processamento
 	vector <int> itens_largos = {};
 	vector <int> itens_altos = {};
 	vector <int> itens_profundos = {};
@@ -162,6 +162,8 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 	for (int i = 0; i < nItems; i++) {
 		// Teste da largura 
 		if (w[i] > W / 2) {
+			itens_largos.push_back(i); // Passa o √≠ndice do item largo
+			cout << "Item largo: " << i << " " << endl;
 			if (h[i] > H / 2) {
 				itens_largos_altos.push_back(i);
 				cout << "Item largo e alto: " << i << " " << endl;
@@ -169,25 +171,19 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 			if (l[i] > L / 2) {
 				itens_largos_profundos.push_back(i);
 				cout << "Item largo e profundo: " << i << " " << endl;
-			}
-			else {
-				itens_largos.push_back(i); // Passa o Ìndice do item largo
-				cout << "Item largo: " << i << " " << endl;
-			}
+			}	
 		}
 		// Teste da altura 
-		else if (h[i] > H / 2) {
+		if (h[i] > H / 2) {
+			itens_altos.push_back(i);
+			cout << "Item alto: " << i << " " << endl;
 			if (l[i] > L / 2) {
-				itens_largos_profundos.push_back(i);
-				cout << "Item largo e profundo: " << i << " " << endl;
-			}
-			else {
-				itens_altos.push_back(i);
-				cout << "Item alto: " << i << " " << endl;
+				itens_altos_profundos.push_back(i);
+				cout << "Item alto e profundo: " << i << " " << endl;
 			}
 		}
 		// Teste da profundidade
-		else if (l[i] > L / 2) {
+		if (l[i] > L / 2) {
 			itens_profundos.push_back(i);
 			cout << "Item profundo: " << i << " " << endl;
 		}
@@ -199,8 +195,8 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 
 	// Agrupando os Largos
 	for (int i = 0; i < itens_largos.size(); i++) {
-		int item_atual = itens_largos[i];					// Aqui obtemos o Ìndice do item no conjunto prim·rio
-		area_itens_largos += h[item_atual] * l[item_atual]; // Para que aqui possamos manipul·-los
+		int item_atual = itens_largos[i];					// Aqui obtemos o √≠ndice do item no conjunto prim√°rio
+		area_itens_largos += h[item_atual] * l[item_atual]; // Para que aqui possamos manipul√°-los
 	}
 	// Agrupando os Altos
 	for (int i = 0; i < itens_altos.size(); i++) {
@@ -220,12 +216,12 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 	// Agrupando os Largos e Profundos
 	for (int i = 0; i < itens_largos_profundos.size(); i++) {
 		int item_atual = itens_largos_profundos[i];
-		altura_itens += l[item_atual];
+		altura_itens += h[item_atual];
 	}
 	// Agrupando os Altos e Profundos
 	for (int i = 0; i < itens_altos_profundos.size(); i++) {
 		int item_atual = itens_altos_profundos[i];
-		largura_itens += l[item_atual];
+		largura_itens += w[item_atual];
 	}
 
 	if (area_itens_largos > H * L || 
