@@ -2,6 +2,7 @@
 #define PROBLEM2BPPC_H_
 
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -10,13 +11,13 @@ public:
 	int W;
 	int H;
 	int L;
-	int nItems;
+	int nItems = 0;
 	vector <int> h;
 	vector <int> w;
 	vector <int> l;
 
 	//constructor
-	problemReader(char* file_name);
+	problemReader(ifstream& file);
 
 	//destructor
 	virtual ~problemReader();

@@ -1,6 +1,10 @@
 #include "packing.h"
 #include <ilcp/cp.h>
 
+int count_itens_largos, count_itens_altos, count_itens_profundos;
+int count_itens_largos_altos, count_itens_largos_profundos, count_itens_altos_profundos;
+int count_packing_largos, count_packing_altos, count_packing_profundos;
+
 packing::packing() {
 	// TODO Auto-generated constructor stub
 
@@ -45,7 +49,7 @@ int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector 
 		//solver
 		IloCP cp(mdl); 
 		cp.setParameter(IloCP::Workers, 1);
-		//cp.setParameter(IloCP::OptimalityTolerance, 100);
+		cp.setParameter(IloCP::TimeLimit, 1800);
 
 		//executando o resolvedor
 		if (cp.solve()) {
@@ -103,6 +107,7 @@ int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int
 		//solver
 		IloCP cp(mdl);
 		cp.setParameter(IloCP::Workers, 1);
+		cp.setParameter(IloCP::TimeLimit, 600);
 
 		//executando o resolvedor
 		if (cp.solve()) {
@@ -198,49 +203,77 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 		int item_atual = itens_largos[i];					// Aqui obtemos o índice do item no conjunto primário
 		area_itens_largos += h[item_atual] * l[item_atual]; // Para que aqui possamos manipulá-los
 	}
+	if (area_itens_largos > H * L) {
+		cout << "Falha no Pre processamento -> ITENS LARGOS" << endl;
+		count_itens_largos++;
+		return 0;
+	}
 	// Agrupando os Altos
 	for (int i = 0; i < itens_altos.size(); i++) {
 		int item_atual = itens_altos[i];
 		area_itens_altos += w[item_atual] * l[item_atual];
+	}
+	if (area_itens_altos > W * L) {
+		cout << "Falha no Pre processamento -> ITENS ALTOS" << endl;
+		count_itens_altos++;
+		return 0;
 	}
 	// Agrupando os Profundos
 	for (int i = 0; i < itens_profundos.size(); i++) {
 		int item_atual = itens_profundos[i];
 		area_itens_profundos += w[item_atual] * h[item_atual];
 	}
+	if (area_itens_profundos > W * H) {
+		cout << "Falha no Pre processamento -> ITENS PROFUNDOS" << endl;
+		count_itens_profundos++;
+		return 0;
+	}
 	// Agrupando os Largos e Altos
 	for (int i = 0; i < itens_largos_altos.size(); i++) {
 		int item_atual = itens_largos_altos[i];
 		profundidade_itens += l[item_atual];
+	}
+	if (profundidade_itens > L) {
+		cout << "Falha no Pre processamento -> ITENS LARGOS E ALTOS" << endl;
+		count_itens_largos_altos++;
+		return 0;
 	}
 	// Agrupando os Largos e Profundos
 	for (int i = 0; i < itens_largos_profundos.size(); i++) {
 		int item_atual = itens_largos_profundos[i];
 		altura_itens += h[item_atual];
 	}
+	if (profundidade_itens > H) {
+		cout << "Falha no Pre processamento -> ITENS LARGOS E PROFUNDOS" << endl;
+		count_itens_largos_profundos++;
+		return 0;
+	}
 	// Agrupando os Altos e Profundos
 	for (int i = 0; i < itens_altos_profundos.size(); i++) {
 		int item_atual = itens_altos_profundos[i];
 		largura_itens += w[item_atual];
 	}
-
-	if (area_itens_largos > H * L || 
-		area_itens_altos > W * L  ||
-		area_itens_profundos > W * H ||
-		profundidade_itens > L ||
-		altura_itens > H || 
-		largura_itens > W) 
-	{
-		cout << "Falha no Pre processamento" << endl;
+	if (profundidade_itens > W) {
+		cout << "Falha no Pre processamento -> ITENS ALTOS E PROFUNDOS" << endl;
+		count_itens_altos_profundos++;
 		return 0;
 	}
 
-	if (
-	 packing2D::auxiliary_packing2D_solve(itens_largos, H, L, h, l, y, z)     == 0 ||
-	 packing2D::auxiliary_packing2D_solve(itens_altos, W, L, w, l, x, z)      == 0 ||
-	 packing2D::auxiliary_packing2D_solve(itens_profundos, W, H, w, h, x, y)  == 0
-	 ){
-		cout << "Falha no PACKING 2D" << endl;
+	if (packing2D::auxiliary_packing2D_solve(itens_largos, H, L, h, l, y, z) == 0){
+		cout << "Falha no PACKING 2D -> ITENS LARGOS" << endl;
+		count_packing_largos++;
+		return 0;
+	}
+
+	if (packing2D::auxiliary_packing2D_solve(itens_altos, W, L, w, l, x, z) == 0) {
+		cout << "Falha no PACKING 2D -> ITENS ALTOS" << endl;
+		count_packing_altos++;
+		return 0;
+	}
+
+	if (packing2D::auxiliary_packing2D_solve(itens_profundos, W, H, w, h, x, y) == 0) {
+		cout << "Falha no PACKING 2D -> ITENS PROFUNDOS" << endl;
+		count_packing_profundos++;
 		return 0;
 	}
 
