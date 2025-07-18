@@ -63,6 +63,8 @@ int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector 
 			cout << "================================" << endl;
 			feasible = 1;
 		}
+		cp.end();
+		mdl.end();
 	}
 	catch (IloException& error) {
 		env.out() << "Error: " << error << endl;
@@ -121,6 +123,8 @@ int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int
 			cout << "========================" << endl;
 			feasible = 1;
 		}
+		cp.end();
+		mdl.end();
 	}
 	catch (IloException& error) {
 		env.out() << "Error: " << error << endl;
@@ -259,19 +263,19 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 		return 0;
 	}
 
-	if (packing2D::auxiliary_packing2D_solve(itens_largos, H, L, h, l, y, z) == 0){
+	if (itens_largos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_largos, H, L, h, l, y, z) == 0){
 		cout << "Falha no PACKING 2D -> ITENS LARGOS" << endl;
 		count_packing_largos++;
 		return 0;
 	}
 
-	if (packing2D::auxiliary_packing2D_solve(itens_altos, W, L, w, l, x, z) == 0) {
+	if (itens_altos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_altos, W, L, w, l, x, z) == 0) {
 		cout << "Falha no PACKING 2D -> ITENS ALTOS" << endl;
 		count_packing_altos++;
 		return 0;
 	}
 
-	if (packing2D::auxiliary_packing2D_solve(itens_profundos, W, H, w, h, x, y) == 0) {
+	if (itens_profundos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_profundos, W, H, w, h, x, y) == 0) {
 		cout << "Falha no PACKING 2D -> ITENS PROFUNDOS" << endl;
 		count_packing_profundos++;
 		return 0;
