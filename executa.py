@@ -1,13 +1,12 @@
 import os
 
-nome_teste = 'resultados_case'
+nome_teste = 'resultados'
 # $instance será substituido pelo nome da instancia
 #ARGUMENTO 1 = INSTANCIA
-comando = 'packing.exe $instance'
+comando = os.path.join('x64', 'Release', 'packing-3D.exe') + ' $instance'
 
-instance_folder = './instances3D/'
-instances_names = ['thpack1']
-#instances_names = ['test_artigo']
+instance_folder = 'instances3D/'
+instances_names = ['inst07.txt']
 
 def levalor(texto,arquivo):
   pin = arquivo.find(texto)
@@ -25,7 +24,7 @@ if not os.path.exists(nome_teste):
 for i in instances_names:
   cmd = comando.replace("$instance", instance_folder + i)
   #não tenho certeza se esse ">" funciona no windows
-  cmd = cmd + ' > ' + nome_teste + '/' + i + '.sol'
+  cmd = cmd + ' > ' + os.path.join(nome_teste, i + '.sol')
   #print('Executando: ' + cmd)
   os.system(cmd)
   

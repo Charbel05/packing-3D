@@ -11,31 +11,29 @@ Item[7]:48, 42, 37
 Item[8]:47, 134, 26
 Item[9]:47, 134, 26
 Item[10]:47, 134, 26
-Item[11]:47, 134, 26
+Item[11]:204, 174, 150
 Item[12]:204, 174, 150
-Item[13]:204, 174, 150
+Item[13]:583, 20, 40
 Item[14]:583, 20, 40
 Item[15]:583, 20, 40
-Item[16]:583, 20, 40
 iniciando os testes...
 Item alto: 8 
 Item alto: 9 
 Item alto: 10 
 Item alto: 11 
+Item alto e profundo: 11 
+Item profundo: 11 
 Item alto: 12 
 Item alto e profundo: 12 
 Item profundo: 12 
-Item alto: 13 
-Item alto e profundo: 13 
-Item profundo: 13 
+Item largo: 13 
 Item largo: 14 
 Item largo: 15 
-Item largo: 16 
  ! --------------------------------------------------- CP Optimizer 22.1.1.0 --
  ! Satisfiability problem - 6 variables, 3 constraints
  ! TimeLimit            = 600
  ! Workers              = 1
- ! Initial process time : 0.01s (0.01s extraction + 0.00s propagation)
+ ! Initial process time : 0.01s (0.01s extraction + 0.01s propagation)
  !  . Log search space  : 45.7 (before), 45.7 (after)
  !  . Memory usage      : 267.1 kB (before), 267.1 kB (after)
  ! Using sequential search.
@@ -57,32 +55,31 @@ Item[1]:85 122
 Item[2]:63 43
 ========================
  ! --------------------------------------------------- CP Optimizer 22.1.1.0 --
- ! Satisfiability problem - 12 variables, 15 constraints
+ ! Satisfiability problem - 10 variables, 10 constraints
  ! TimeLimit            = 600
  ! Workers              = 1
  ! Initial process time : 0.01s (0.01s extraction + 0.00s propagation)
- !  . Log search space  : 96.1 (before), 96.1 (after)
- !  . Memory usage      : 299.9 kB (before), 299.9 kB (after)
+ !  . Log search space  : 79.5 (before), 79.5 (after)
+ !  . Memory usage      : 299.7 kB (before), 299.7 kB (after)
  ! Using sequential search.
  ! ----------------------------------------------------------------------------
  !               Branches  Non-fixed            Branch decision
- *                     73  0.01s                502  = _int0
+ *                     91  0.01s                  2  = _int1
  ! ----------------------------------------------------------------------------
  ! Search completed, 1 solution found.
  ! ----------------------------------------------------------------------------
- ! Number of branches     : 73
- ! Number of fails        : 30
- ! Total memory usage     : 789.1 kB (730.7 kB CP Optimizer + 58.3 kB Concert)
- ! Time spent in solve    : 0.01s (0.00s engine + 0.01s extraction)
- ! Search speed (br. / s) : 7300.0
+ ! Number of branches     : 91
+ ! Number of fails        : 40
+ ! Total memory usage     : 764.0 kB (711.6 kB CP Optimizer + 52.4 kB Concert)
+ ! Time spent in solve    : 0.01s (0.01s engine + 0.01s extraction)
+ ! Search speed (br. / s) : 9100.0
  ! ----------------------------------------------------------------------------
 =======SOLUCAO 2D=======
-Item[0]:502 143
-Item[1]:14 105
-Item[2]:523 84
-Item[3]:520 26
-Item[4]:288 44
-Item[5]:61 19
+Item[0]:26 26
+Item[1]:2 105
+Item[2]:32 168
+Item[3]:80 44
+Item[4]:327 19
 ========================
  ! --------------------------------------------------- CP Optimizer 22.1.1.0 --
  ! Satisfiability problem - 4 variables, 1 constraint
@@ -109,46 +106,44 @@ Item[0]:285 21
 Item[1]:39 58
 ========================
  ! --------------------------------------------------- CP Optimizer 22.1.1.0 --
- ! Satisfiability problem - 51 variables, 136 constraints
+ ! Satisfiability problem - 48 variables, 120 constraints
  ! TimeLimit            = 1800
  ! Workers              = 1
  ! Initial process time : 0.01s (0.01s extraction + 0.00s propagation)
- !  . Log search space  : 371.6 (before), 371.6 (after)
- !  . Memory usage      : 399.7 kB (before), 399.7 kB (after)
+ !  . Log search space  : 348.2 (before), 348.2 (after)
+ !  . Memory usage      : 399.4 kB (before), 399.4 kB (after)
  ! Using sequential search.
  ! ----------------------------------------------------------------------------
  !               Branches  Non-fixed            Branch decision
-                     1000         12             28 != _int4
-                     2000          8        F   169  = _int20
- *                   2301  0.02s                179  = _int12
+                     1000         12        F    41  = _int47
+ *                   1816  0.02s                  0  = _int21
  ! ----------------------------------------------------------------------------
  ! Search completed, 1 solution found.
  ! ----------------------------------------------------------------------------
- ! Number of branches     : 2301
- ! Number of fails        : 1056
- ! Total memory usage     : 2.1 MB (1.8 MB CP Optimizer + 0.3 MB Concert)
+ ! Number of branches     : 1816
+ ! Number of fails        : 833
+ ! Total memory usage     : 1.9 MB (1.6 MB CP Optimizer + 0.3 MB Concert)
  ! Time spent in solve    : 0.02s (0.01s engine + 0.01s extraction)
- ! Search speed (br. / s) : 230100.0
+ ! Search speed (br. / s) : 181600.0
  ! ----------------------------------------------------------------------------
 =======SOLUCAO 3D (FINAL)=======
-Item[0]:344 3 102
-Item[1]:418 141 172
-Item[2]:220 152 121
-Item[3]:220 68 118
-Item[4]:179 5 176
-Item[5]:408 61 156
-Item[6]:223 114 86
-Item[7]:256 46 56
-Item[8]:234 28 16
-Item[9]:127 9 172
-Item[10]:321 12 147
-Item[11]:308 79 57
-Item[12]:15 21 0
-Item[13]:378 58 0
-Item[14]:0 0 11
-Item[15]:0 0 61
-Item[16]:0 198 150
+Item[0]:0 0 77
+Item[1]:428 0 40
+Item[2]:428 45 0
+Item[3]:0 158 194
+Item[4]:428 95 0
+Item[5]:29 0 194
+Item[6]:190 0 194
+Item[7]:0 0 40
+Item[8]:316 0 40
+Item[9]:390 0 176
+Item[10]:285 45 0
+Item[11]:49 50 0
+Item[12]:379 58 26
+Item[13]:0 25 0
+Item[14]:0 0 0
+Item[15]:0 0 103
 ================================
-TIME: 0.025
+TIME: 0.024
 STATUS: 1
 Morrendo

@@ -17,7 +17,7 @@ public:
 	vector <int> l;
 
 	//constructor
-	problemReader(ifstream& file);
+	problemReader(char* file);
 
 	//destructor
 	virtual ~problemReader();

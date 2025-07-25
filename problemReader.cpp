@@ -3,22 +3,22 @@
 #include <fstream>
 
 
-problemReader::problemReader(ifstream& file) {
-	
-	int nProblem = 0, seed = 0, typeItens = 0, nItems = 0;
-	if (!(file >> nProblem >> seed >> this->W >> this->H >> this->L >> typeItens)) {
-		// Fim de arquivo ou erro
-		throw std::runtime_error("Erro ao ler cabeçalho do problema.");
+problemReader::problemReader(char* file_name) {
+	ifstream file(file_name);
+
+	if (!file.is_open()) {
+		cerr << "Problema ao abrir o arquivo " << file_name << endl;
+		exit(-1);
 	}
 
-	for (int i = 0; i < typeItens; i++) {
+	int nProblem = 0, seed = 0, typeItens = 0, nItems = 0;
+	file >> nProblem >> seed >> this->W >> this->H >> this->L >> typeItens;
+
+	for (int i = 0; i < typeItens; i++)
+	{
 		int ti, vertical_permission;
 		int wi, hi, li;
-
-		if (!(file >> ti >> wi >> vertical_permission >> hi >> vertical_permission >> li >> vertical_permission >> nItems)) {
-			throw std::runtime_error("Erro ao ler item.");
-		}
-
+		file >> ti >> wi >> vertical_permission >> hi >> vertical_permission >> li >> vertical_permission >> nItems;
 		this->nItems += nItems;
 		this->add_item(wi, hi, li, nItems);
 	}

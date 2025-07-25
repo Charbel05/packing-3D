@@ -247,7 +247,7 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 		int item_atual = itens_largos_profundos[i];
 		altura_itens += h[item_atual];
 	}
-	if (profundidade_itens > H) {
+	if (altura_itens > H) {
 		cout << "Falha no Pre processamento -> ITENS LARGOS E PROFUNDOS" << endl;
 		count_itens_largos_profundos++;
 		return 0;
@@ -257,7 +257,7 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 		int item_atual = itens_altos_profundos[i];
 		largura_itens += w[item_atual];
 	}
-	if (profundidade_itens > W) {
+	if (largura_itens > W) {
 		cout << "Falha no Pre processamento -> ITENS ALTOS E PROFUNDOS" << endl;
 		count_itens_altos_profundos++;
 		return 0;
