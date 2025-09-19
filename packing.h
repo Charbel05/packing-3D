@@ -33,6 +33,14 @@ public:
 		int D1, int D2,
 		vector <int>& dim_itens1, vector <int>& dim_itens2,
 		vector <int>& dim_solver1, vector <int>& dim_solver2);
+
+	static int pre_process_packing2D_solve(
+		string text,
+		vector <int>& indice_items,
+		int D1, int D2,
+		int camadas, vector<int>& peso, 
+		vector <int>& dim_itens1, vector <int>& dim_itens2,
+		vector <int>& dim_solver1, vector <int>& dim_solver2);
 };
 
 #endif /* PACKING_H_ */

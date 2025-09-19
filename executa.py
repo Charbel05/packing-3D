@@ -6,7 +6,7 @@ nome_teste = 'resultados'
 comando = os.path.join('x64', 'Release', 'packing-3D.exe') + ' $instance'
 
 instance_folder = 'instances3D/'
-instances_names = ['inst07.txt']
+instances_names = ['inst04D.txt']
 
 def levalor(texto,arquivo):
   pin = arquivo.find(texto)
