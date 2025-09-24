@@ -15,12 +15,14 @@ public:
 	static int packing_solve(int nItems,
 		int W, int H, int L,
 		vector <int>& w, vector <int>& h, vector <int>& l,
-		vector <int>& x, vector <int>& y, vector <int>& z);
+		vector <int>& x, vector <int>& y, vector <int>& z,
+		int input_domain_option);
 
 	static int cp_solver(int nItems,
 		int W, int H, int L,
 		vector <int>& w, vector <int>& h, vector <int>& l,
-		vector <int>& x, vector <int>& y, vector <int>& z);
+		vector <int>& x, vector <int>& y, vector <int>& z,
+		int domain_option);
 };
 
 class packing2D {

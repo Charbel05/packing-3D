@@ -32,7 +32,8 @@ int main(int argc, char* argv[]) {
 		vector <int> x(problem->nItems), y(problem->nItems), z(problem->nItems);
 		int feasible = packing::packing_solve(problem->nItems, problem->W, problem->H, problem->L,
 			problem->w, problem->h, problem->l,
-			x, y, z);
+			x, y, z,
+			atoi(argv[2]));
 		const time_t end = clock();
 		float time = (end - begin) / (float)(CLOCKS_PER_SEC);
 		cout << "TIME: " << time << endl;

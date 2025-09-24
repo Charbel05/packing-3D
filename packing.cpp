@@ -2,9 +2,7 @@
 #include <cmath>
 #include <ilcp/cp.h>
 
-int count_itens_largos, count_itens_altos, count_itens_profundos;
-int count_itens_largos_altos, count_itens_largos_profundos, count_itens_altos_profundos;
-int count_packing_largos, count_packing_altos, count_packing_profundos;
+vector<int> BW, BH, BL;
 
 packing::packing() {
 	// TODO Auto-generated constructor stub
@@ -15,28 +13,49 @@ packing::~packing() {
 	// TODO Auto-generated destructor stub
 }
 
-int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l, vector <int>& x, vector <int>& y, vector <int>& z) {
+int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l, vector <int>& x, vector <int>& y, vector <int>& z, int domain_option) {
 
 	IloEnv env;
 	int feasible = 0;
 
 	try {
-		IloModel mdl(env); //modelo do problema
+		IloModel mdl(env); // Modelo do problema
 
-		//variaveis do problema
+		// Variaveis do problema
 		IloIntVarArray X(env);
 		IloIntVarArray Y(env);
 		IloIntVarArray Z(env);
 
-		//dominio sem padroes
-		for (IloInt j = 0; j < nItems; j++) {
-			X.add(IloIntVar(env, 0, W - w[j]));
-			Y.add(IloIntVar(env, 0, H - h[j]));
-			Z.add(IloIntVar(env, 0, L - l[j]));
+		// Dominio sem padroes
+		if (domain_option == 1) {
+			for (IloInt j = 0; j < nItems; j++) {
+				X.add(IloIntVar(env, 0, W - w[j]));
+				Y.add(IloIntVar(env, 0, H - h[j]));
+				Z.add(IloIntVar(env, 0, L - l[j]));
+			}
 		}
 
+		// Dominio Padrao Boschetti
+		if (domain_option == 2) {
+			IloIntArray BW_Ilo(env);
+			IloIntArray BH_Ilo(env);
+			IloIntArray BL_Ilo(env);
+			for (int i = 0; i < BW.size(); i++)
+				BW_Ilo.add(BW[i]);
+			for (int i = 0; i < BH.size(); i++)
+				BH_Ilo.add(BH[i]);
+			for (int i = 0; i < BL.size(); i++)
+				BL_Ilo.add(BL[i]);
+			for (IloInt j = 0; j < nItems; j++) {
+				X.add(IloIntVar(env, 0, W - w[j]));
+				Y.add(IloIntVar(env, 0, H - h[j]));
+				Z.add(IloIntVar(env, 0, L - l[j]));
+			}
+		}
+		
 
-		//Restrição de não sobreposição
+
+		// Restrição de não sobreposição
 		for (IloInt i = 0; i < nItems; i++) {
 			for (IloInt j = i + 1; j < nItems; j++) {
 				mdl.add(
@@ -77,6 +96,70 @@ int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector 
 	env.end();
 
 	return feasible;
+}
+
+void dominio_Boschetti(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l) {
+	
+	int number_points, lastCount;
+	vector <vector<int>> BiW(nItems), BiH(nItems), BiL(nItems);
+
+	for (int i = 0; i < nItems; i++) { 
+		BiW[i].push_back(0);
+		number_points = 1;
+		for (int j = 0; j < nItems; j++) {
+			if (j != i)
+			{
+				lastCount = number_points;
+				for (int k = 0; k < lastCount; k++) {
+					if (w[j] + BiW[i][k] <= W - w[i]) 
+					{
+						BiW[i].push_back(w[j] + BiW[i][k]);
+						number_points++;
+					}
+				}
+			}
+		}
+	}
+	//concatena e elimina a duplicidade (ordena/unifica/apaga)
+	for (int i = 0; i < nItems; i++) {
+		for (int j = 0; j < BiW[i].size(); j++) {
+			BW.push_back(BiW[i][j]);
+		}
+		cout << endl;
+	}
+
+	for (int i = 0; i < nItems; i++) { 
+		BiH[i].push_back(0); 
+		number_points = 1;
+		for (int j = 0; j < nItems; j++) { 
+			if (j != i)
+			{
+				lastCount = number_points;
+				for (int k = 0; k < lastCount; k++) {
+					if (h[j] + BiH[i][k] <= H - h[i]) //testa a combinação do item adicionado e os que ja estavam no padr�o
+					{
+						BiH[i].push_back(h[j] + BiH[i][k]); //e toma a posicao pos item adicionado
+						number_points++;
+					}
+				}
+			}
+		}
+	}
+
+	//concatena e elimina a duplicidade (ordena/unifica/apaga)
+	for (int i = 0; i < nItems; i++) {
+		for (int j = 0; j < BiH[i].size(); j++) {
+			BH.push_back(BiH[i][j]);
+		}
+	}
+
+	sort(BW.begin(), BW.end());
+	auto last = unique(BW.begin(), BW.end());
+	BW.erase(last, BW.end());
+
+	sort(BH.begin(), BH.end());
+	auto lastBH = unique(BH.begin(), BH.end());
+	BH.erase(lastBH, BH.end());
 }
 
 int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int D2, vector <int>& dim_itens1, vector <int>& dim_itens2, vector <int>& dim_solver1, vector <int>& dim_solver2) {
@@ -195,7 +278,7 @@ int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_ite
 		//solver
 		IloCP cp(mdl);
 		cp.setParameter(IloCP::Workers, 1);
-		cp.setParameter(IloCP::TimeLimit, 10);
+		cp.setParameter(IloCP::TimeLimit, 600);
 
 		//executando o resolvedor
 		if (cp.solve()) {
@@ -258,7 +341,7 @@ int classificar_em_Nfaixas(string text, int nItems, int dim_bin, vector <int>& p
 		for (int i = 0; i < nItems; i++) {
 			peso_todos_itens[i][f] = floor(dim_itens[i] / (( ((float)dim_bin) / f) + 0.00001));
 			if (peso_todos_itens[i][f] > 0) {
-				todos_itens_pesados[f][i] = i;
+				todos_itens_pesados[f][i] = 1;
 			}
 		}
 	}
@@ -283,10 +366,15 @@ int classificar_em_Nfaixas(string text, int nItems, int dim_bin, vector <int>& p
 	// Aqui separamos os índices e pesos dos itens que serão utilizados no modelo 2D
 	cout << text << "F* = " << fEstrela << endl;
 	for (int i = 0; i < todos_itens_pesados[fEstrela].size(); i++) {
-		int item_atual = todos_itens_pesados[fEstrela][i];
+		if (todos_itens_pesados[fEstrela][i] == 1) {
+			itens_pesados_Nfaixas.push_back(i);
+			peso_Nfaixas[i] = peso_todos_itens[i][fEstrela];
+			cout << "Peso Item[" << i << "]: " << peso_Nfaixas[i] << endl;
+		}
+		/*int item_atual = todos_itens_pesados[fEstrela][i];
 		itens_pesados_Nfaixas.push_back(item_atual);
 		peso_Nfaixas[item_atual] = peso_todos_itens[item_atual][fEstrela];
-		cout << "Peso Item[" << item_atual << "]: " << peso_Nfaixas[item_atual] << endl;
+		cout << "Peso Item[" << item_atual << "]: " << peso_Nfaixas[item_atual] << endl;*/
 	}
 
 	peso_todos_itens.clear();
@@ -306,7 +394,7 @@ int classificar_em_Nfaixas(string text, int nItems, int dim_bin, vector <int>& p
 	return fEstrela;
 }
 
-int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l, vector <int>& x, vector <int>& y, vector <int>& z) {
+int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l, vector <int>& x, vector <int>& y, vector <int>& z, int input_domain_option) {
 	int feasible = 0;
 
 	if (nItems == 1) {
@@ -408,7 +496,6 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 	}
 	if (profundidade_itens > L) {
 		cout << "Falha no Pre processamento -> ITENS LARGOS E ALTOS" << endl;
-		count_itens_largos_altos++;
 		return 0;
 	}
 	// Agrupando os Largos e Profundos
@@ -418,7 +505,6 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 	}
 	if (altura_itens > H) {
 		cout << "Falha no Pre processamento -> ITENS LARGOS E PROFUNDOS" << endl;
-		count_itens_largos_profundos++;
 		return 0;
 	}
 	// Agrupando os Altos e Profundos
@@ -433,17 +519,14 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 
 	if (itens_largos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_largos, H, L, h, l, y, z) == 0){
 		cout << "Falha no PACKING 2D -> ITENS LARGOS" << endl;
-		count_packing_largos++;
 		return 0;
 	}
 	if (itens_altos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_altos, W, L, w, l, x, z) == 0) {
 		cout << "Falha no PACKING 2D -> ITENS ALTOS" << endl;
-		count_packing_altos++;
 		return 0;
 	}
 	if (itens_profundos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_profundos, W, H, w, h, x, y) == 0) {
 		cout << "Falha no PACKING 2D -> ITENS PROFUNDOS" << endl;
-		count_packing_profundos++;
 		return 0;
 	}
 
@@ -489,6 +572,6 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 		return 0;
 	}
 
-	feasible = cp_solver(nItems, W, H, L, w, h, l, x, y, z);
+	feasible = cp_solver(nItems, W, H, L, w, h, l, x, y, z, input_domain_option);
 	return feasible;
 }
