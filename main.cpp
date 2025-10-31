@@ -30,10 +30,18 @@ int main(int argc, char* argv[]) {
 		vector <int>&x, vector <int>&y, vector <int>&z,
 		int dominio);*/
 		vector <int> x(problem->nItems), y(problem->nItems), z(problem->nItems);
-		int feasible = packing::packing_solve(problem->nItems, problem->W, problem->H, problem->L,
+		int feasible = packing::packing_solve(
+			problem->nItems, 
+			problem->W, problem->H, problem->L,
 			problem->w, problem->h, problem->l,
 			x, y, z,
-			atoi(argv[2]));
+			// 1 - Dominio sem discretizacao
+			// 2 - Dominio Boschetti Geral
+			atoi(argv[2]),
+			// 1 - Pre processamento 2 faixas
+			// 2 - Pre processamento 3 faixas
+			// 3 - Pre processamento N faixas
+			atoi(argv[3]));
 		const time_t end = clock();
 		float time = (end - begin) / (float)(CLOCKS_PER_SEC);
 		cout << "TIME: " << time << endl;

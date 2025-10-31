@@ -3,6 +3,7 @@
 #include <ilcp/cp.h>
 
 vector<int> BW, BH, BL;
+vector<int> BD1, BD2;
 
 packing::packing() {
 	// TODO Auto-generated constructor stub
@@ -106,6 +107,75 @@ void static dominio_Boschetti(int nItems, int W, int H, int L, vector <int>& w, 
 	BL.erase(lastBL, BL.end());
 }
 
+//void static dominio_Boschetti_2D(int nItems, vector <int> & indice_itens, int D1, int D2, vector <int> & dim_itens1, vector <int> & dim_itens2) {
+//
+//	int number_points, lastCount, item_atual;
+//	vector <vector<int>> BiD1(nItems), BiD2(nItems);
+//
+//	for (int i = 0; i < nItems; i++) {
+//		item_atual = indice_itens[i];
+//		cout << "Indice atual: " << item_atual << endl;
+//		BiD1[i].push_back(0);
+//		number_points = 1;
+//		for (int j = 0; j < nItems; j++) {
+//			int item_aux_atual = indice_itens[j];
+//			if (item_aux_atual != item_atual) // Problema aqui: 
+//			{
+//				lastCount = number_points;
+//				for (int k = 0; k < lastCount; k++) {
+//					if (dim_itens1[item_aux_atual] + BiD1[i][k] <= D1 - dim_itens1[item_atual])
+//					{
+//						BiD1[i].push_back(dim_itens1[item_aux_atual] + BiD1[i][k]);
+//						number_points++;
+//					}
+//				}
+//			}
+//			cout << "BiD1[" << i << "]["<< j << "]: " << BiD1[i][j]<< endl;
+//		}
+//	}
+//	//concatena e elimina a duplicidade (ordena/unifica/apaga)
+//	for (int i = 0; i < nItems; i++) {
+//		for (int j = 0; j < BiD1[i].size(); j++) {
+//			BD1.push_back(BiD1[i][j]);
+//		}
+//		cout << endl;
+//	}
+//
+//	for (int i = 0; i < nItems; i++) {
+//		item_atual = indice_itens[i];
+//		BiD2[i].push_back(0);
+//		number_points = 1;
+//		for (int j = 0; j < nItems; j++) {
+//			int item_aux_atual = indice_itens[j];
+//			if (item_aux_atual != item_atual)
+//			{
+//				lastCount = number_points;
+//				for (int k = 0; k < lastCount; k++) {
+//					if (dim_itens2[item_aux_atual] + BiD2[i][k] <= D2 - dim_itens2[item_atual]) //testa a combinação do item adicionado e os que ja estavam no padrao
+//					{
+//						BiD2[i].push_back(dim_itens2[item_aux_atual] + BiD2[i][k]); //e toma a posicao pos item adicionado
+//						number_points++;
+//					}
+//				}
+//			}
+//		}
+//	}
+//	//concatena e elimina a duplicidade (ordena/unifica/apaga)
+//	for (int i = 0; i < nItems; i++) {
+//		for (int j = 0; j < BiD2[i].size(); j++) {
+//			BD2.push_back(BiD2[i][j]);
+//		}
+//	}
+//
+//	sort(BD1.begin(), BD1.end());
+//	auto last = unique(BD1.begin(), BD1.end());
+//	BD1.erase(last, BD1.end());
+//
+//	sort(BD2.begin(), BD2.end());
+//	auto lastBH = unique(BD2.begin(), BD2.end());
+//	BD2.erase(lastBH, BD2.end());
+//}
+
 int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l, vector <int>& x, vector <int>& y, vector <int>& z, int domain_option) {
 
 	IloEnv env;
@@ -195,7 +265,7 @@ int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector 
 	return feasible;
 }
 
-int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int D2, vector <int>& dim_itens1, vector <int>& dim_itens2, vector <int>& dim_solver1, vector <int>& dim_solver2) {
+int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int D2, vector <int>& dim_itens1, vector <int>& dim_itens2, vector <int>& dim_solver1, vector <int>& dim_solver2, int domain_option) {
 
 	IloEnv env;
 	int feasible = 1;
@@ -208,12 +278,38 @@ int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int
 		IloIntVarArray Y(env);
 		int item_atual;
 
-		//dominio sem padroes
+		// Dominio sem padroes
 		for (IloInt j = 0; j < indice_itens.size(); j++) {
 			item_atual = indice_itens[j];
 			X.add(IloIntVar(env, 0, D1 - dim_itens1[item_atual]));
 			Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
 		}
+		//if (domain_option == 1) {
+		//	for (IloInt j = 0; j < indice_itens.size(); j++) {
+		//		item_atual = indice_itens[j];
+		//		X.add(IloIntVar(env, 0, D1 - dim_itens1[item_atual]));
+		//		Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
+		//	}
+		//}
+
+		// Dominio Padrao Boschetti
+		//if (domain_option == 2) {
+		//	IloIntArray BD1_Ilo(env);
+		//	IloIntArray BD2_Ilo(env);
+
+		//	dominio_Boschetti_2D(indice_itens.size(), indice_itens, D1, D2, dim_itens1, dim_itens2);
+
+		//	for (int i = 0; i < BD1.size(); i++)
+		//		BD1_Ilo.add(BD1[i]);
+		//	for (int i = 0; i < BD2.size(); i++)
+		//		BD2_Ilo.add(BD2[i]);
+		//	for (IloInt j = 0; j < indice_itens.size(); j++) {
+		//		X.add(IloIntVar(env, BD1_Ilo));
+		//		Y.add(IloIntVar(env, BD2_Ilo));
+		//		mdl.add(X[j] + dim_itens1[j] <= D1);
+		//		mdl.add(Y[j] + dim_itens2[j] <= D2);
+		//	}
+		//}
 		
 
 		//Restrição de não sobreposição
@@ -261,11 +357,14 @@ int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int
 		env.out() << "Error: " << error << endl;
 	}
 	env.end();
+	
+	//BD1.clear();
+	//BD2.clear();
 
 	return feasible;
 }
 
-int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_itens, int D1, int D2, int camadas, vector<int>& peso, vector <int>& dim_itens1, vector <int>& dim_itens2, vector <int>& dim_solver1, vector <int>& dim_solver2) {
+int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_itens, int D1, int D2, int camadas, vector<int>& peso, vector <int>& dim_itens1, vector <int>& dim_itens2, vector <int>& dim_solver1, vector <int>& dim_solver2, int domain_option) {
 
 	IloEnv env;
 	int feasible = 1;
@@ -289,9 +388,37 @@ int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_ite
 
 		for (int j = 0; j < indice_itens.size(); j++) {
 			item_atual = indice_itens[j];
-			X.add(IloIntVar(env, 0, (D1*(camadas-1) ) - dim_itens1[item_atual]));
+			X.add(IloIntVar(env, 0, (D1 * (camadas - 1)) - dim_itens1[item_atual]));
 			Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
 		}
+		// Dominio sem padroes
+		/*if (domain_option == 1) {
+			for (int j = 0; j < indice_itens.size(); j++) {
+				item_atual = indice_itens[j];
+				X.add(IloIntVar(env, 0, (D1 * (camadas - 1)) - dim_itens1[item_atual]));
+				Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
+			}
+		}*/
+
+		// Dominio Padrao Boschetti
+		/*if (domain_option == 2) {
+			IloIntArray BD1_Ilo(env);
+			IloIntArray BD2_Ilo(env);
+
+			dominio_Boschetti_2D(indice_itens.size(), indice_itens, (D1 * (camadas - 1)), D2, dim_itens1, dim_itens2);
+
+			for (int i = 0; i < BD1.size(); i++)
+				BD1_Ilo.add(BD1[i]);
+			for (int i = 0; i < BD2.size(); i++)
+				BD2_Ilo.add(BD2[i]);
+			for (IloInt j = 0; j < indice_itens.size(); j++) {
+				item_atual = indice_itens[j];
+				X.add(IloIntVar(env, BD1_Ilo));
+				Y.add(IloIntVar(env, BD2_Ilo));
+				mdl.add(X[j] + dim_itens1[item_atual] <= (D1 * (camadas - 1)));
+				mdl.add(Y[j] + dim_itens2[item_atual] <= D2);
+			}
+		}*/
 
 		for (IloInt i = 0; i < indice_itens.size(); i++) {
 			int item_i = indice_itens[i];
@@ -311,7 +438,7 @@ int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_ite
 		//solver
 		IloCP cp(mdl);
 		cp.setParameter(IloCP::Workers, 1);
-		cp.setParameter(IloCP::TimeLimit, 3600);
+		cp.setParameter(IloCP::TimeLimit, 600);
 
 		//executando o resolvedor
 		if (cp.solve()) {
@@ -337,6 +464,9 @@ int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_ite
 		env.out() << "Error: " << error << endl;
 	}
 	env.end();
+
+	//BD1.clear();
+	//BD2.clear();
 
 	return feasible;
 }
@@ -441,7 +571,7 @@ int classificar_em_Nfaixas(string text, int nItems, int dim_bin, vector <int>& p
 	return fEstrela;
 }
 
-int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l, vector <int>& x, vector <int>& y, vector <int>& z, int input_domain_option) {
+int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l, vector <int>& x, vector <int>& y, vector <int>& z, int input_domain_option, int input_pre_process) {
 	int feasible = 0;
 
 	if (nItems == 1) {
@@ -467,122 +597,133 @@ int packing::packing_solve(int nItems, int W, int H, int L, vector <int>& w, vec
 	}
 	cout << "iniciando os testes..." << endl;
 
-	// PRE PROCESS 2 FAIXAS //
-	vector <int> itens_largos = {}, itens_altos = {}, itens_profundos = {};
-	vector <int> itens_largos_altos = {}, itens_largos_profundos = {}, itens_altos_profundos = {};
-	vector<int> aux_vector_ones(nItems, 1);
+	switch (input_pre_process){
 
-	for (int i = 0; i < nItems; i++) {
-		// Teste da largura 
-		if (w[i] > W / 2) {
-			itens_largos.push_back(i); // Passa o índice do item largo
-			cout << "Item largo: " << i << " " << endl;
-			if (h[i] > H / 2) {
-				itens_largos_altos.push_back(i);
-				cout << "Item largo e alto: " << i << " " << endl;
+		// PRE PROCESS 2 FAIXAS //
+		case 1:{
+			vector <int> itens_largos = {}, itens_altos = {}, itens_profundos = {};
+			vector <int> itens_largos_altos = {}, itens_largos_profundos = {}, itens_altos_profundos = {};
+			vector<int> aux_vector_ones(nItems, 1);
+			for (int i = 0; i < nItems; i++) {
+				// Teste da largura 
+				if (w[i] > W / 2) {
+					itens_largos.push_back(i); // Passa o índice do item largo
+					cout << "Item largo: " << i << " " << endl;
+					if (h[i] > H / 2) {
+						itens_largos_altos.push_back(i);
+						cout << "Item largo e alto: " << i << " " << endl;
+					}
+					if (l[i] > L / 2) {
+						itens_largos_profundos.push_back(i);
+						cout << "Item largo e profundo: " << i << " " << endl;
+					}
+				}
+				// Teste da altura 
+				if (h[i] > H / 2) {
+					itens_altos.push_back(i);
+					cout << "Item alto: " << i << " " << endl;
+					if (l[i] > L / 2) {
+						itens_altos_profundos.push_back(i);
+						cout << "Item alto e profundo: " << i << " " << endl;
+					}
+				}
+				// Teste da profundidade
+				if (l[i] > L / 2) {
+					itens_profundos.push_back(i);
+					cout << "Item profundo: " << i << " " << endl;
+				}
 			}
-			if (l[i] > L / 2) {
-				itens_largos_profundos.push_back(i);
-				cout << "Item largo e profundo: " << i << " " << endl;
-			}	
-		}
-		// Teste da altura 
-		if (h[i] > H / 2) {
-			itens_altos.push_back(i);
-			cout << "Item alto: " << i << " " << endl;
-			if (l[i] > L / 2) {
-				itens_altos_profundos.push_back(i);
-				cout << "Item alto e profundo: " << i << " " << endl;
+
+			if (soma_2faixas(itens_largos, H, L, h, l) == -1) {
+				cout << "Falha na soma do Pre processamento DUAS FAIXAS [ITENS LARGOS]" << endl;
+				return 0;
 			}
+			if (soma_2faixas(itens_altos, W, L, w, l) == -1) {
+				cout << "Falha na soma do Pre processamento DUAS FAIXAS [ITENS ALTOS]" << endl;
+				return 0;
+			}
+			if (soma_2faixas(itens_profundos, W, H, w, h) == -1) {
+				cout << "Falha na soma do Pre processamento DUAS FAIXAS [ITENS PROFUNDOS]" << endl;
+				return 0;
+			}
+			if (soma_2faixas(itens_altos_profundos, W, 1, w, aux_vector_ones) == -1) {
+				cout << "Falha no Pre processamento -> [ITENS ALTOS E PROFUNDOS]" << endl;
+				return 0;
+			}
+			if (soma_2faixas(itens_largos_profundos, H, 1, h, aux_vector_ones) == -1) {
+				cout << "Falha no Pre processamento -> [ITENS LARGOS E PROFUNDOS]" << endl;
+				return 0;
+			}
+			if (soma_2faixas(itens_largos_altos, L, 1, l, aux_vector_ones) == -1) {
+				cout << "Falha no Pre processamento -> [ITENS LARGOS E ALTOS]" << endl;
+				return 0;
+			}
+			if (itens_largos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_largos, H, L, h, l, y, z, input_domain_option) == 0) {
+				cout << "Falha no PACKING 2D -> [ITENS LARGOS]" << endl;
+				return 0;
+			}
+			if (itens_altos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_altos, W, L, w, l, x, z, input_domain_option) == 0) {
+				cout << "Falha no PACKING 2D -> [ITENS ALTOS]" << endl;
+				return 0;
+			}
+			if (itens_profundos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_profundos, W, H, w, h, x, y, input_domain_option) == 0) {
+				cout << "Falha no PACKING 2D -> [ITENS PROFUNDOS]" << endl;
+				return 0;
+			}
+			break;
 		}
-		// Teste da profundidade
-		if (l[i] > L / 2) {
-			itens_profundos.push_back(i);
-			cout << "Item profundo: " << i << " " << endl;
+		// PRE PROCESS 3 FAIXAS //
+		case 2:{
+			vector<int> pesoW(nItems, 0), itens_pesados_3faixasW{};
+			vector<int> pesoH(nItems, 0), itens_pesados_3faixasH{};
+			vector<int> pesoL(nItems, 0), itens_pesados_3faixasL{};
+			classificar_em_3faixas("(W)", nItems, W, pesoW, itens_pesados_3faixasW, H, L, w, h, l);
+			if (itens_pesados_3faixasW.size() > 0 && (itens_pesados_3faixasW[0] == -1 || packing2D::pre_process_packing2D_solve("(W)", itens_pesados_3faixasW, H, L, 3, pesoW, h, l, y, z, input_domain_option) == 0)) {
+				cout << "Falha no PACKING 2D -> DISCRETIZACAO 3 faixas (W)" << endl;
+				return 0;
+			}
+
+			classificar_em_3faixas("(H)", nItems, H, pesoH, itens_pesados_3faixasH, W, L, h, w, l);
+			if (itens_pesados_3faixasH.size() > 0 && (itens_pesados_3faixasH[0] == -1 || packing2D::pre_process_packing2D_solve("(H)", itens_pesados_3faixasH, W, L, 3, pesoH, w, l, x, z, input_domain_option) == 0)) {
+				cout << "Falha no PACKING 2D -> DISCRETIZACAO 3 faixas (H)" << endl;
+				return 0;
+			}
+
+			classificar_em_3faixas("(L)", nItems, L, pesoL, itens_pesados_3faixasL, W, H, l, w, h);
+			if (itens_pesados_3faixasL.size() > 0 && (itens_pesados_3faixasL[0] == -1 || packing2D::pre_process_packing2D_solve("(L)", itens_pesados_3faixasL, W, H, 3, pesoL, w, h, x, y, input_domain_option) == 0)) {
+				cout << "Falha no PACKING 2D -> DISCRETIZACAO 3 faixas (L)" << endl;
+				return 0;
+			}
+			break;
 		}
-	}
+		// PRE PROCESS N FAIXAS //
+		case 3:{
+			vector <int> pesoW_Nfaixas(nItems, 0), itens_pesadosW_Nfaixas{};
+			vector <int> pesoH_Nfaixas(nItems, 0), itens_pesadosH_Nfaixas{};
+			vector <int> pesoL_Nfaixas(nItems, 0), itens_pesadosL_Nfaixas{};
+			int camadas = classificar_em_Nfaixas("(W)", nItems, W, pesoW_Nfaixas, itens_pesadosW_Nfaixas, H, L, w, h, l);
+			if (itens_pesadosW_Nfaixas.size() > 0 && (itens_pesadosW_Nfaixas[0] == -1 || packing2D::pre_process_packing2D_solve("(W)", itens_pesadosW_Nfaixas, H, L, camadas, pesoW_Nfaixas, h, l, y, z, input_domain_option) == 0)) {
+				cout << "Falha no PACKING 2D -> DISCRETIZACAO " << camadas << " faixas (W)" << endl;
+				return 0;
+			}
 
-	if (soma_2faixas(itens_largos, H, L, h, l) == -1) {
-		cout << "Falha na soma do Pre processamento DUAS FAIXAS [ITENS LARGOS]" << endl;
-		return 0;
-	}
-	if (soma_2faixas(itens_altos, W, L, w, l) == -1) {
-		cout << "Falha na soma do Pre processamento DUAS FAIXAS [ITENS ALTOS]" << endl;
-		return 0;
-	}
-	if (soma_2faixas(itens_profundos, W, H, w, h) == -1) {
-		cout << "Falha na soma do Pre processamento DUAS FAIXAS [ITENS PROFUNDOS]" << endl;
-		return 0;
-	}
-	if (soma_2faixas(itens_altos_profundos, W, 1, w, aux_vector_ones) == -1) {
-		cout << "Falha no Pre processamento -> [ITENS ALTOS E PROFUNDOS]" << endl;
-		return 0;
-	}
-	if (soma_2faixas(itens_largos_profundos, H, 1, h, aux_vector_ones) == -1) {
-		cout << "Falha no Pre processamento -> [ITENS LARGOS E PROFUNDOS]" << endl;
-		return 0;
-	}
-	if (soma_2faixas(itens_largos_altos, L, 1, l, aux_vector_ones) == -1){
-		cout << "Falha no Pre processamento -> [ITENS LARGOS E ALTOS]" << endl;
-		return 0;
-	}
-	if (itens_largos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_largos, H, L, h, l, y, z) == 0){
-		cout << "Falha no PACKING 2D -> [ITENS LARGOS]" << endl;
-		return 0;
-	}
-	if (itens_altos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_altos, W, L, w, l, x, z) == 0) {
-		cout << "Falha no PACKING 2D -> [ITENS ALTOS]" << endl;
-		return 0;
-	}
-	if (itens_profundos.size() > 0 && packing2D::auxiliary_packing2D_solve(itens_profundos, W, H, w, h, x, y) == 0) {
-		cout << "Falha no PACKING 2D -> [ITENS PROFUNDOS]" << endl;
-		return 0;
-	}
+			camadas = classificar_em_Nfaixas("(H)", nItems, H, pesoH_Nfaixas, itens_pesadosH_Nfaixas, W, L, h, w, l);
+			if (itens_pesadosH_Nfaixas.size() > 0 && (itens_pesadosH_Nfaixas[0] == -1 || packing2D::pre_process_packing2D_solve("(H)", itens_pesadosH_Nfaixas, W, L, camadas, pesoH_Nfaixas, w, l, x, z, input_domain_option) == 0)) {
+				cout << "Falha no PACKING 2D -> DISCRETIZACAO " << camadas << " faixas (H)" << endl;
+				return 0;
+			}
 
-	// PRE PROCESS 3 FAIXAS //
-	vector<int> pesoW(nItems, 0), itens_pesados_3faixasW{};
-	classificar_em_3faixas("(W)", nItems, W, pesoW, itens_pesados_3faixasW, H, L, w, h, l);
-	if (itens_pesados_3faixasW.size() > 0 && (itens_pesados_3faixasW[0] == -1 || packing2D::pre_process_packing2D_solve("(W)", itens_pesados_3faixasW, H, L, 3, pesoW, h, l, y, z) == 0)) {
-		cout << "Falha no PACKING 2D -> DISCRETIZACAO 3 faixas (W)" << endl;
-		return 0;
+			camadas = classificar_em_Nfaixas("(L)", nItems, L, pesoL_Nfaixas, itens_pesadosL_Nfaixas, W, H, l, w, h);
+			if (itens_pesadosL_Nfaixas.size() > 0 && (itens_pesadosL_Nfaixas[0] == -1 || packing2D::pre_process_packing2D_solve("(L)", itens_pesadosL_Nfaixas, W, H, camadas, pesoL_Nfaixas, w, h, x, y, input_domain_option) == 0)) {
+				cout << "Falha no PACKING 2D -> DISCRETIZACAO " << camadas << "faixas(L)" << endl;
+				return 0;
+			}
+			break;
+		}
+		default:
+			cout << "SEM PRE PROCESSAMENTOS" << endl;
+			break;
 	}
-
-	vector<int> pesoH(nItems, 0), itens_pesados_3faixasH{};
-	classificar_em_3faixas("(H)", nItems, H, pesoH, itens_pesados_3faixasH, W, L, h, w, l);
-	if (itens_pesados_3faixasH.size() > 0 && (itens_pesados_3faixasH[0] == -1 || packing2D::pre_process_packing2D_solve("(H)", itens_pesados_3faixasH, W, L, 3, pesoH, w, l, x, z) == 0)) {
-		cout << "Falha no PACKING 2D -> DISCRETIZACAO 3 faixas (H)" << endl;
-		return 0;
-	}
-
-	vector<int> pesoL(nItems, 0), itens_pesados_3faixasL{};
-	classificar_em_3faixas("(L)", nItems, L, pesoL, itens_pesados_3faixasL, W, H, l, w, h);
-	if (itens_pesados_3faixasL.size() > 0 && (itens_pesados_3faixasL[0] == -1 || packing2D::pre_process_packing2D_solve("(L)", itens_pesados_3faixasL, W, H, 3, pesoL, w, h, x, y) == 0)) {
-		cout << "Falha no PACKING 2D -> DISCRETIZACAO 3 faixas (L)" << endl;
-		return 0;
-	}
-
-	// PRE PROCESS N FAIXAS //
-	vector <int> pesoW_Nfaixas(nItems, 0), itens_pesadosW_Nfaixas{};
-	int camadas = classificar_em_Nfaixas("(W)", nItems, W, pesoW_Nfaixas, itens_pesadosW_Nfaixas, H, L, w, h, l);
-	if (itens_pesadosW_Nfaixas.size() > 0 && (itens_pesadosW_Nfaixas[0] == -1 || packing2D::pre_process_packing2D_solve("(W)", itens_pesadosW_Nfaixas, H, L, camadas, pesoW_Nfaixas, h, l, y, z) == 0)) {
-		cout << "Falha no PACKING 2D -> DISCRETIZACAO " << camadas << " faixas (W)" << endl;
-		return 0;
-	}
-
-	vector <int> pesoH_Nfaixas(nItems, 0), itens_pesadosH_Nfaixas{};
-	camadas = classificar_em_Nfaixas("(H)", nItems, H, pesoH_Nfaixas, itens_pesadosH_Nfaixas, W, L, h, w, l);
-	if (itens_pesadosH_Nfaixas.size() > 0 && (itens_pesadosH_Nfaixas[0] == -1 || packing2D::pre_process_packing2D_solve("(H)", itens_pesadosH_Nfaixas, W, L, camadas, pesoH_Nfaixas, w, l, x, z) == 0)) {
-		cout << "Falha no PACKING 2D -> DISCRETIZACAO " << camadas << " faixas (H)" << endl;
-		return 0;
-	}
-
-	vector <int> pesoL_Nfaixas(nItems, 0), itens_pesadosL_Nfaixas{};
-	camadas = classificar_em_Nfaixas("(L)", nItems, L, pesoL_Nfaixas, itens_pesadosL_Nfaixas, W, H, l, w, h);
-	if (itens_pesadosL_Nfaixas.size() > 0 && (itens_pesadosL_Nfaixas[0] == -1 || packing2D::pre_process_packing2D_solve("(L)", itens_pesadosL_Nfaixas, W, H, camadas, pesoL_Nfaixas, w, h, x, y) == 0)) {
-		cout << "Falha no PACKING 2D -> DISCRETIZACAO " << camadas << "faixas(H)" << endl;
-		return 0;
-	}
-
 
 	feasible = cp_solver(nItems, W, H, L, w, h, l, x, y, z, input_domain_option);
 	return feasible;
