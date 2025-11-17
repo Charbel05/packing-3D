@@ -11,14 +11,13 @@ problemReader::problemReader(char* file_name) {
 		exit(-1);
 	}
 
-	int nProblem = 0, seed = 0, typeItens = 0, nItems = 0;
-	file >> nProblem >> seed >> this->W >> this->H >> this->L >> typeItens;
+	int typeItens = 0, nItems = 0;
+	file  >> this->W >> this->H >> this->L >> typeItens;
 
 	for (int i = 0; i < typeItens; i++)
 	{
-		int ti, vertical_permission;
 		int wi, hi, li;
-		file >> ti >> wi >> vertical_permission >> hi >> vertical_permission >> li >> vertical_permission >> nItems;
+		file >> wi  >> hi >> li >> nItems;
 		this->nItems += nItems;
 		this->add_item(wi, hi, li, nItems);
 	}

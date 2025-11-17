@@ -1,5 +1,6 @@
 #include "packing.h"
 #include <cmath>
+#include <algorithm>
 #include <ilcp/cp.h>
 
 vector<int> BW, BH, BL;
@@ -27,7 +28,9 @@ void static dominio_Boschetti(int nItems, int W, int H, int L, vector <int>& w, 
 			{
 				lastCount = number_points;
 				for (int k = 0; k < lastCount; k++) {
-					if (w[j] + BiW[i][k] <= W - w[i])
+					if (w[j] + BiW[i][k] <= W - w[i] 
+						&& ( find(BiW[i].begin(), BiW[i].end(), w[j] + BiW[i][k]) == BiW[i].end() ) // Verifica se esse ponto existe no vetor 
+						)
 					{
 						BiW[i].push_back(w[j] + BiW[i][k]);
 						number_points++;
@@ -52,7 +55,10 @@ void static dominio_Boschetti(int nItems, int W, int H, int L, vector <int>& w, 
 			{
 				lastCount = number_points;
 				for (int k = 0; k < lastCount; k++) {
-					if (h[j] + BiH[i][k] <= H - h[i]) //testa a combinação do item adicionado e os que ja estavam no padrao
+					if (h[j] + BiH[i][k] <= H - h[i] //testa a combinação do item adicionado e os que ja estavam no padrao
+						&&
+						(find(BiH[i].begin(), BiH[i].end(), h[j] + BiH[i][k]) == BiH[i].end()) // Verifica se esse ponto existe no vetor 
+						) 
 					{
 						BiH[i].push_back(h[j] + BiH[i][k]); //e toma a posicao pos item adicionado
 						number_points++;
@@ -76,7 +82,10 @@ void static dominio_Boschetti(int nItems, int W, int H, int L, vector <int>& w, 
 			{
 				lastCount = number_points;
 				for (int k = 0; k < lastCount; k++) {
-					if (l[j] + BiL[i][k] <= L - l[i]) //testa a combinação do item adicionado e os que ja estavam no padr�o
+					if (l[j] + BiL[i][k] <= L - l[i] // Testa a combinação do item adicionado e os que ja estavam no padrao
+						&&
+						(find(BiL[i].begin(), BiL[i].end(), l[j] + BiL[i][k]) == BiL[i].end()) // Verifica se esse ponto existe no vetor 
+						)
 					{
 						BiL[i].push_back(l[j] + BiL[i][k]); //e toma a posicao pos item adicionado
 						number_points++;
@@ -107,74 +116,104 @@ void static dominio_Boschetti(int nItems, int W, int H, int L, vector <int>& w, 
 	BL.erase(lastBL, BL.end());
 }
 
-//void static dominio_Boschetti_2D(int nItems, vector <int> & indice_itens, int D1, int D2, vector <int> & dim_itens1, vector <int> & dim_itens2) {
-//
-//	int number_points, lastCount, item_atual;
-//	vector <vector<int>> BiD1(nItems), BiD2(nItems);
-//
-//	for (int i = 0; i < nItems; i++) {
-//		item_atual = indice_itens[i];
-//		cout << "Indice atual: " << item_atual << endl;
-//		BiD1[i].push_back(0);
-//		number_points = 1;
-//		for (int j = 0; j < nItems; j++) {
-//			int item_aux_atual = indice_itens[j];
-//			if (item_aux_atual != item_atual) // Problema aqui: 
-//			{
-//				lastCount = number_points;
-//				for (int k = 0; k < lastCount; k++) {
-//					if (dim_itens1[item_aux_atual] + BiD1[i][k] <= D1 - dim_itens1[item_atual])
-//					{
-//						BiD1[i].push_back(dim_itens1[item_aux_atual] + BiD1[i][k]);
-//						number_points++;
-//					}
-//				}
-//			}
-//			cout << "BiD1[" << i << "]["<< j << "]: " << BiD1[i][j]<< endl;
-//		}
-//	}
-//	//concatena e elimina a duplicidade (ordena/unifica/apaga)
-//	for (int i = 0; i < nItems; i++) {
-//		for (int j = 0; j < BiD1[i].size(); j++) {
-//			BD1.push_back(BiD1[i][j]);
-//		}
-//		cout << endl;
-//	}
-//
-//	for (int i = 0; i < nItems; i++) {
-//		item_atual = indice_itens[i];
-//		BiD2[i].push_back(0);
-//		number_points = 1;
-//		for (int j = 0; j < nItems; j++) {
-//			int item_aux_atual = indice_itens[j];
-//			if (item_aux_atual != item_atual)
-//			{
-//				lastCount = number_points;
-//				for (int k = 0; k < lastCount; k++) {
-//					if (dim_itens2[item_aux_atual] + BiD2[i][k] <= D2 - dim_itens2[item_atual]) //testa a combinação do item adicionado e os que ja estavam no padrao
-//					{
-//						BiD2[i].push_back(dim_itens2[item_aux_atual] + BiD2[i][k]); //e toma a posicao pos item adicionado
-//						number_points++;
-//					}
-//				}
-//			}
-//		}
-//	}
-//	//concatena e elimina a duplicidade (ordena/unifica/apaga)
-//	for (int i = 0; i < nItems; i++) {
-//		for (int j = 0; j < BiD2[i].size(); j++) {
-//			BD2.push_back(BiD2[i][j]);
-//		}
-//	}
-//
-//	sort(BD1.begin(), BD1.end());
-//	auto last = unique(BD1.begin(), BD1.end());
-//	BD1.erase(last, BD1.end());
-//
-//	sort(BD2.begin(), BD2.end());
-//	auto lastBH = unique(BD2.begin(), BD2.end());
-//	BD2.erase(lastBH, BD2.end());
-//}
+void static dominio_Boschetti_2D(vector <int> & indice_itens, int D1, int D2, vector <int> & dim_itens1, vector <int> & dim_itens2) {
+
+	int number_points, lastCount, item_atual;
+	vector <vector<int>> BiD1(indice_itens.size()), BiD2(indice_itens.size());
+
+	for (int i = 0; i < indice_itens.size(); i++) {
+		item_atual = indice_itens[i];
+		BiD1[i].push_back(0);
+		number_points = 1;
+
+		if (i > 0
+			&&
+			(dim_itens1[item_atual] == dim_itens1[item_atual - 1] && dim_itens2[item_atual] == dim_itens2[item_atual - 1])
+			)
+		{
+			BiD1[i] = BiD1[i - 1];
+		}
+		else
+		{
+			for (int j = 0; j < indice_itens.size(); j++) {
+				int item_aux_atual = indice_itens[j];
+				if (j != i)
+				{
+					lastCount = number_points;
+					for (int k = 0; k < lastCount; k++) {
+						if (dim_itens1[item_aux_atual] + BiD1[i][k] <= D1 - dim_itens1[item_atual]
+							&&
+							(find(BiD1[i].begin(), BiD1[i].end(), dim_itens1[item_aux_atual] + BiD1[i][k]) == BiD1[i].end())
+							)
+						{
+							BiD1[i].push_back(dim_itens1[item_aux_atual] + BiD1[i][k]);
+							number_points++;
+							cout << "item_atual: " << item_atual << endl;
+							cout << "item_aux_atual: " << item_aux_atual << endl;
+							cout << "BiD1[i][k]: " << BiD1[i][k] << endl;
+							cout << "dim_itens1[item_aux_atual]: " << dim_itens1[item_aux_atual] << endl;
+						}
+					}
+				}
+			}
+		}		
+	}
+	//concatena e elimina a duplicidade (ordena/unifica/apaga)
+	for (int i = 0; i < indice_itens.size(); i++) {
+		for (int j = 0; j < BiD1[i].size(); j++) {
+			BD1.push_back(BiD1[i][j]);
+		}
+		cout << endl;
+	}
+
+	for (int i = 0; i < indice_itens.size(); i++) {
+		item_atual = indice_itens[i];
+		BiD2[i].push_back(0);
+		number_points = 1;
+
+		if (i > 0
+			&&
+			(dim_itens1[item_atual] == dim_itens1[item_atual - 1] && dim_itens2[item_atual] == dim_itens2[item_atual - 1])
+			)
+		{
+			BiD1[i] = BiD1[i - 1];
+		}
+		else
+		{
+			for (int j = 0; j < indice_itens.size(); j++) {
+				int item_aux_atual = indice_itens[j];
+				if (j != i)
+				{
+					lastCount = number_points;
+					for (int k = 0; k < lastCount; k++) {
+						if (dim_itens2[item_aux_atual] + BiD2[i][k] <= D2 - dim_itens2[item_atual]
+							&&
+							(find(BiD2[i].begin(), BiD2[i].end(), dim_itens2[item_aux_atual] + BiD2[i][k]) == BiD2[i].end())
+							)
+						{
+							BiD2[i].push_back(dim_itens2[item_aux_atual] + BiD2[i][k]);
+							number_points++;
+						}
+					}
+				}
+			}
+		}
+	}
+	//concatena e elimina a duplicidade (ordena/unifica/apaga)
+	for (int i = 0; i < indice_itens.size(); i++) {
+		for (int j = 0; j < BiD2[i].size(); j++) {
+			BD2.push_back(BiD2[i][j]);
+		}
+	}
+
+	sort(BD1.begin(), BD1.end());
+	auto last = unique(BD1.begin(), BD1.end());
+	BD1.erase(last, BD1.end());
+
+	sort(BD2.begin(), BD2.end());
+	auto lastBH = unique(BD2.begin(), BD2.end());
+	BD2.erase(lastBH, BD2.end());
+}
 
 int packing::cp_solver(int nItems, int W, int H, int L, vector <int>& w, vector <int>& h, vector <int>& l, vector <int>& x, vector <int>& y, vector <int>& z, int domain_option) {
 
@@ -279,37 +318,32 @@ int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int
 		int item_atual;
 
 		// Dominio sem padroes
-		for (IloInt j = 0; j < indice_itens.size(); j++) {
-			item_atual = indice_itens[j];
-			X.add(IloIntVar(env, 0, D1 - dim_itens1[item_atual]));
-			Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
+		if (domain_option == 1) {
+			for (IloInt j = 0; j < indice_itens.size(); j++) {
+				item_atual = indice_itens[j];
+				X.add(IloIntVar(env, 0, D1 - dim_itens1[item_atual]));
+				Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
+			}
 		}
-		//if (domain_option == 1) {
-		//	for (IloInt j = 0; j < indice_itens.size(); j++) {
-		//		item_atual = indice_itens[j];
-		//		X.add(IloIntVar(env, 0, D1 - dim_itens1[item_atual]));
-		//		Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
-		//	}
-		//}
 
 		// Dominio Padrao Boschetti
-		//if (domain_option == 2) {
-		//	IloIntArray BD1_Ilo(env);
-		//	IloIntArray BD2_Ilo(env);
+		if (domain_option == 2) {
+			IloIntArray BD1_Ilo(env);
+			IloIntArray BD2_Ilo(env);
 
-		//	dominio_Boschetti_2D(indice_itens.size(), indice_itens, D1, D2, dim_itens1, dim_itens2);
+			dominio_Boschetti_2D(indice_itens, D1, D2, dim_itens1, dim_itens2);
 
-		//	for (int i = 0; i < BD1.size(); i++)
-		//		BD1_Ilo.add(BD1[i]);
-		//	for (int i = 0; i < BD2.size(); i++)
-		//		BD2_Ilo.add(BD2[i]);
-		//	for (IloInt j = 0; j < indice_itens.size(); j++) {
-		//		X.add(IloIntVar(env, BD1_Ilo));
-		//		Y.add(IloIntVar(env, BD2_Ilo));
-		//		mdl.add(X[j] + dim_itens1[j] <= D1);
-		//		mdl.add(Y[j] + dim_itens2[j] <= D2);
-		//	}
-		//}
+			for (int i = 0; i < BD1.size(); i++)
+				BD1_Ilo.add(BD1[i]);
+			for (int i = 0; i < BD2.size(); i++)
+				BD2_Ilo.add(BD2[i]);
+			for (IloInt j = 0; j < indice_itens.size(); j++) {
+				X.add(IloIntVar(env, BD1_Ilo));
+				Y.add(IloIntVar(env, BD2_Ilo));
+				mdl.add(X[j] + dim_itens1[j] <= D1);
+				mdl.add(Y[j] + dim_itens2[j] <= D2);
+			}
+		}
 		
 
 		//Restrição de não sobreposição
@@ -358,8 +392,8 @@ int packing2D::auxiliary_packing2D_solve(vector <int>& indice_itens, int D1, int
 	}
 	env.end();
 	
-	//BD1.clear();
-	//BD2.clear();
+	BD1.clear();
+	BD2.clear();
 
 	return feasible;
 }
@@ -392,20 +426,20 @@ int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_ite
 			Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
 		}
 		// Dominio sem padroes
-		/*if (domain_option == 1) {
+		if (domain_option == 1) {
 			for (int j = 0; j < indice_itens.size(); j++) {
 				item_atual = indice_itens[j];
 				X.add(IloIntVar(env, 0, (D1 * (camadas - 1)) - dim_itens1[item_atual]));
 				Y.add(IloIntVar(env, 0, D2 - dim_itens2[item_atual]));
 			}
-		}*/
+		}
 
 		// Dominio Padrao Boschetti
-		/*if (domain_option == 2) {
+		if (domain_option == 2) {
 			IloIntArray BD1_Ilo(env);
 			IloIntArray BD2_Ilo(env);
 
-			dominio_Boschetti_2D(indice_itens.size(), indice_itens, (D1 * (camadas - 1)), D2, dim_itens1, dim_itens2);
+			dominio_Boschetti_2D(indice_itens, (D1 * (camadas - 1)), D2, dim_itens1, dim_itens2);
 
 			for (int i = 0; i < BD1.size(); i++)
 				BD1_Ilo.add(BD1[i]);
@@ -418,7 +452,7 @@ int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_ite
 				mdl.add(X[j] + dim_itens1[item_atual] <= (D1 * (camadas - 1)));
 				mdl.add(Y[j] + dim_itens2[item_atual] <= D2);
 			}
-		}*/
+		}
 
 		for (IloInt i = 0; i < indice_itens.size(); i++) {
 			int item_i = indice_itens[i];
@@ -465,8 +499,8 @@ int packing2D::pre_process_packing2D_solve(string text, vector <int>& indice_ite
 	}
 	env.end();
 
-	//BD1.clear();
-	//BD2.clear();
+	BD1.clear();
+	BD2.clear();
 
 	return feasible;
 }
@@ -511,26 +545,26 @@ void classificar_em_3faixas(string text, int nItems, int dim_bin, vector<int>& p
 
 int classificar_em_Nfaixas(string text, int nItems, int dim_bin, vector <int>& peso_Nfaixas, vector <int>& itens_pesados_Nfaixas, int dim_bin_aux1, int dim_bin_aux2, vector <int>& dim_itens, vector <int>& dim_itens_aux1, vector <int>& dim_itens_aux2) {
 
-	vector <vector<int>> peso_todos_itens(nItems, vector<int>(dim_bin + 1, 0)), todos_itens_pesados(dim_bin + 1, vector<int>(nItems, 0));
+	vector <vector<int>> peso_todos_itens(nItems, vector<int>(dim_bin + 1, 0)), todos_itens_pesados( nItems, vector<int>(dim_bin + 1, 0));
 
 	// Cálculo para encontrar o peso de cada item por faixa
-	for (int f = 2; f < dim_bin + 1; f++){
-		for (int i = 0; i < nItems; i++) {
+	for (int i = 0; i < nItems; i++){
+		for (int f = 2; f < dim_bin + 1; f++) {
 			peso_todos_itens[i][f] = floor(dim_itens[i] / (( ((float)dim_bin) / f) + 0.00001));
 			if (peso_todos_itens[i][f] > 0) {
-				todos_itens_pesados[f][i] = 1;
+				todos_itens_pesados[i][f] = 1;
 			}
 		}
 	}
 
-	// Aqui é feito o cálculo para encontrar o valor que máximize o valor de F*
+	// Cálculo para encontrar o valor que máximize o valor de F*
 	int fEstrela = 0;
 	double soma_fEstrela = 0;
 	for (int f = 2; f < dim_bin + 1; f++){
+
 		double soma_f = 0;
-		for (int i = 0; i < todos_itens_pesados[f].size(); i++){
-			int item_atual = todos_itens_pesados[f][i];
-			soma_f += (peso_todos_itens[item_atual][f] * dim_itens_aux1[item_atual] * dim_itens_aux2[item_atual]);
+		for (int i = 0; i < nItems; i++) {
+			soma_f += (peso_todos_itens[i][f] * dim_itens_aux1[i] * dim_itens_aux2[i]);
 		}
 		soma_f = soma_f / (f - 1);
 		cout << "Soma camada[" << f << "]: " << soma_f << endl;
@@ -540,34 +574,32 @@ int classificar_em_Nfaixas(string text, int nItems, int dim_bin, vector <int>& p
 		}
 	}
 	
-	// Aqui separamos os índices e pesos dos itens que serão utilizados no modelo 2D
+	// Separa os índices e pesos dos itens que serão utilizados no modelo 2D
 	cout << text << "F* = " << fEstrela << endl;
-	for (int i = 0; i < todos_itens_pesados[fEstrela].size(); i++) {
-		if (todos_itens_pesados[fEstrela][i] == 1) {
+	for (int i = 0; i < nItems; i++) {
+		if (todos_itens_pesados[i][fEstrela] == 1) {
 			itens_pesados_Nfaixas.push_back(i);
 			peso_Nfaixas[i] = peso_todos_itens[i][fEstrela];
 			cout << "Peso Item[" << i << "]: " << peso_Nfaixas[i] << endl;
 		}
-		/*int item_atual = todos_itens_pesados[fEstrela][i];
-		itens_pesados_Nfaixas.push_back(item_atual);
-		peso_Nfaixas[item_atual] = peso_todos_itens[item_atual][fEstrela];
-		cout << "Peso Item[" << item_atual << "]: " << peso_Nfaixas[item_atual] << endl;*/
 	}
 
 	peso_todos_itens.clear();
 	todos_itens_pesados.clear();
 
-	// Iremos fazer o último teste para garantir que o somatório dos itens respeitará a restrição
+	// Teste para garantir que o somatório dos itens respeitará a restrição
 	int soma = 0;
 	for (int i = 0; i < nItems; i++) {
-		int item_atual = peso_Nfaixas[i];
-		soma += (peso_Nfaixas[item_atual] * dim_itens_aux1[item_atual] * dim_itens_aux2[item_atual]) ;
+		soma += (peso_Nfaixas[i] * dim_itens_aux1[i] * dim_itens_aux2[i]) ;
 	}
+	cout << "Soma: " << soma << endl;
+	cout << "fEstrela - 1: " << fEstrela - 1 << endl;
+	cout << "dim_bin_aux1: " << dim_bin_aux1 << endl;
+	cout << "dim_bin_aux2: " << dim_bin_aux2 << endl;
 	if (soma > (fEstrela - 1) * dim_bin_aux1 * dim_bin_aux2) {
 		itens_pesados_Nfaixas = { -1 };
 		return -1;
 	}
-	cout << "Soma = " << soma << endl;
 	return fEstrela;
 }
 
